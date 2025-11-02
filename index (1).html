@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BHARTIYA SANCHAR</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{
+  background:#fffaf6;
+  color:#222;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(90deg,#ff9933,#ffffff,#138808);
+  background-size:300% 300%;
+  animation:flagWave 6s infinite linear;
+  color:#000;
+  text-align:center;
+  padding:1rem 0;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+header h1{font-size:1.9rem;font-weight:800;letter-spacing:1px}
+@keyframes flagWave{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* NAVBAR */
+nav{
+  display:flex;
+  overflow-x:auto;
+  background:#fff;
+  border-bottom:3px solid #ffe0b2;
+  scrollbar-width:none;
+}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  flex-shrink:0;
+  border:none;
+  background:transparent;
+  padding:12px 22px;
+  font-size:1rem;
+  font-weight:600;
+  color:#333;
+  cursor:pointer;
+  position:relative;
+  transition:0.3s;
+}
+nav button:hover{color:#ff3d00}
+nav button.active{
+  color:#fff;
+  background:linear-gradient(90deg,#ff9933,#ffffff,#138808);
+  border-radius:25px;
+  box-shadow:0 0 10px rgba(255,61,0,0.5);
+}
+
+/* SEARCH + ADD */
+.controls{
+  margin:1rem auto;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.controls input{
+  padding:10px 15px;
+  width:250px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+.controls button{
+  padding:10px 18px;
+  border:none;
+  border-radius:8px;
+  background:#ff3d00;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+}
+.controls button:hover{transform:scale(1.05);background:#cc3200}
+
+/* ADD NEWS */
+#addNewsSection{
+  display:none;
+  background:#fff;
+  width:90%;
+  max-width:600px;
+  margin:10px auto;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  animation:fadeIn .4s ease;
+}
+#addNewsSection input,#addNewsSection textarea{
+  width:100%;
+  margin-bottom:10px;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* NEWS GRID */
+.news-container{
+  width:90%;
+  max-width:1100px;
+  margin:20px auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:25px;
+}
+.news-card{
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
+  transform:translateY(40px);
+  opacity:0;
+  transition:all 0.6s ease;
+}
+.news-card.show{
+  transform:translateY(0);
+  opacity:1;
+}
+.news-card img{
+  width:100%;
+  height:210px;
+  object-fit:cover;
+}
+.news-card .content{padding:15px}
+.news-card h3{color:#ff3d00;font-size:1.1rem;margin-bottom:8px}
+.news-card p{color:#555;font-size:0.9rem;line-height:1.4;margin-bottom:10px}
+
+/* ACTION BUTTONS */
+.news-actions{
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  padding:10px 0;
+  border-top:1px solid #eee;
+  font-size:0.9rem;
+  font-weight:600;
+  color:#ff3d00;
+}
+.news-actions button{
+  border:none;
+  background:none;
+  cursor:pointer;
+  color:inherit;
+  transition:0.2s;
+}
+.news-actions button:hover{color:#138808;transform:scale(1.2)}
+
+footer{
+  margin-top:auto;
+  text-align:center;
+  padding:1rem;
+  background:linear-gradient(90deg,#ff9933,#ffffff,#138808);
+  font-weight:600;
+  color:#000;
+}
+</style>
+</head>
+<body>
+
+<header><h1>🇮🇳 BHARTIYA SANCHAR – Bharat ka Apna News Portal</h1></header>
+
+<nav id="categoryBar">
+  <button class="active" onclick="loadNews('all',event)">All</button>
+  <button onclick="loadNews('top',event)">Top</button>
+  <button onclick="loadNews('politics',event)">Politics</button>
+  <button onclick="loadNews('sports',event)">Sports</button>
+  <button onclick="loadNews('technology',event)">Technology</button>
+  <button onclick="loadNews('business',event)">Business</button>
+  <button onclick="loadNews('entertainment',event)">Entertainment</button>
+  <button onclick="loadNews('health',event)">Health</button>
+</nav>
+
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="Search any topic...">
+  <button onclick="searchNews()">Search</button>
+  <button onclick="toggleAddNews()">➕ Add News</button>
+</div>
+
+<div id="addNewsSection">
+  <h3 style="color:#ff3d00;margin-bottom:10px;">📰 Add Your News</h3>
+  <input type="text" id="newsTitle" placeholder="Enter news title" />
+  <textarea id="newsDesc" rows="3" placeholder="Enter news details"></textarea>
+  <input type="file" id="newsPhoto" accept="image/*" />
+  <button onclick="addNews()">Publish News</button>
+</div>
+
+<div id="newsContainer" class="news-container"></div>
+
+<footer>© 2025 BHARTIYA SANCHAR | All Rights Reserved</footer>
+
+<script>
+const container=document.getElementById("newsContainer");
+const buttons=document.querySelectorAll("nav button");
+let newsList=[];
+
+function setActiveButton(btn){
+  buttons.forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  btn.scrollIntoView({behavior:"smooth",inline:"center"});
+}
+
+function renderNews(list){
+  container.innerHTML=list.length?
+    list.map((n,i)=>`
+      <div class="news-card">
+        <img src="${n.urlToImage}" alt="">
+        <div class="content">
+          <h3>${n.title}</h3>
+          <p>${n.description}</p>
+        </div>
+        <div class="news-actions">
+          <button onclick="likeNews(this)">❤️ Like</button>
+          <button onclick="commentNews('${n.title}')">💬 Comment</button>
+          <button onclick="shareNews('${n.title}')">🔗 Share</button>
+          <button onclick="deleteNews(${i})">🗑️ Delete</button>
+        </div>
+      </div>`).join("")
+  :"<p style='text-align:center;padding:20px;'>No news yet. Add your first story!</p>";
+
+  document.querySelectorAll(".news-card").forEach((card,i)=>{
+    setTimeout(()=>card.classList.add("show"),i*150);
+  });
+}
+
+function loadNews(cat,e){
+  if(e) setActiveButton(e.target);
+  renderNews(newsList);
+}
+
+function searchNews(){
+  const q=document.getElementById("searchInput").value.trim().toLowerCase();
+  if(!q)return;
+  const results=newsList.filter(n=>n.title.toLowerCase().includes(q));
+  renderNews(results.length?results:[{title:"No results",description:"No articles found",urlToImage:"https://source.unsplash.com/800x400/?news"}]);
+}
+
+function toggleAddNews(){
+  const s=document.getElementById("addNewsSection");
+  s.style.display=(s.style.display==="block")?"none":"block";
+}
+
+function addNews(){
+  const title=document.getElementById("newsTitle").value;
+  const desc=document.getElementById("newsDesc").value;
+  const photo=document.getElementById("newsPhoto").files[0];
+  if(!title||!desc){alert("Please fill all fields!");return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const item={title,description:desc,urlToImage:e.target.result};
+    newsList.unshift(item);
+    renderNews(newsList);
+    document.getElementById("newsTitle").value="";
+    document.getElementById("newsDesc").value="";
+    document.getElementById("newsPhoto").value="";
+    toggleAddNews();
+  };
+  if(photo)reader.readAsDataURL(photo);
+  else{
+    newsList.unshift({title,description:desc,urlToImage:"https://source.unsplash.com/800x400/?news"});
+    renderNews(newsList);
+    toggleAddNews();
+  }
+}
+
+function deleteNews(i){
+  if(confirm("Delete this news?")){
+    newsList.splice(i,1);
+    renderNews(newsList);
+  }
+}
+
+function likeNews(btn){
+  btn.textContent="❤️ Liked";
+  btn.style.color="red";
+}
+
+function commentNews(title){
+  const c=prompt("💬 Comment on: "+title);
+  if(c)alert("Comment added!");
+}
+
+function shareNews(title){
+  alert("🔗 Shared successfully: "+title);
+}
+
+renderNews([]);
+
+async function loadNews(category = "general") {
+  const apiKey = "fa1c6823236848258a078e05b29937a2 "; // get it from https://newsapi.org/
+  const url = `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=${apiKey}`;
+  
+  const response = await fetch(url);
+  const data = await response.json();
+  
+  const container = document.getElementById("newsContainer");
+  container.innerHTML = "";
+  
+  data.articles.forEach(article => {
+    const card = document.createElement("div");
+    card.className = "news-card";
+    card.innerHTML = `
+      <img src="${article.urlToImage || 'https://source.unsplash.com/800x400/?news'}">
+      <h3>${article.title}</h3>
+      <p>${article.description || ''}</p>
+    `;
+    container.appendChild(card);
+  });
+}
+
+window.onload = () => loadNews();
+</script>
+</body>
+</html>
